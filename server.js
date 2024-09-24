@@ -22,7 +22,7 @@ app.use(morgan('dev'))
 
 //-------------------------------------------------------------------------------------------
 
-//routes/api/v1/auth":
+//routes":
 // This is the base URL or route prefix. Any routes defined in authRoutes will be accessed through URLs that start with /api/v1/auth.
 // For example:
 // If there's a GET /login route inside authRoutes, it will be accessed through /api/v1/auth/login.
