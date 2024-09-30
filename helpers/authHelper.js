@@ -5,13 +5,13 @@ export const hashPassword = async(password) => {
 
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password,saltRounds)
-        return hashPassword;
+        return hashedPassword;
     }
     catch(error){
         console.log("Hashing error is "+error)
     }
 };
 
-export const comparePassword = async(password) => {
-    return bcrypt.compare(password,hashPassword);
+export const comparePassword = async(password,hashedPassword) => {
+    return bcrypt.compare(password,hashedPassword);
 }

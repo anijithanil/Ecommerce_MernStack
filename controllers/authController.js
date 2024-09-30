@@ -1,5 +1,6 @@
-import { hashPassword } from '../helpers/authHelper.js';
+import { comparePassword, hashPassword } from '../helpers/authHelper.js';
 import userModels from '../models/userModels.js'
+import JWT from 'jsonwebtoken';
 
 export const registerController =async(req,res)=>{
     try{
@@ -7,19 +8,19 @@ export const registerController =async(req,res)=>{
         //validations
 
         if(!name){
-            return res.send({error:'Name is required'})
+            return res.send({message:'Name is required'})
         }
         if(!email){
-            return res.send({error:'Email is required'})
+            return res.send({message:'Email is required'})
         }
         if(!password){
-            return res.send({error:'Password is required'})
+            return res.send({message:'Password is required'})
         }
         if(!phone){
-            return res.send({error:'Phone is required'})
+            return res.send({message:'Phone is required'})
         }
         if(!address){
-            return res.send({error:'Address is required'})
+            return res.send({message:'Address is required'})
         }
 
         //checking user
@@ -27,7 +28,7 @@ export const registerController =async(req,res)=>{
         //existing user
         if(existingUser){
             return res.status(200).send({
-                success:true,
+                success:false,
                 message:"Already registered please login",
             })
         }
@@ -61,7 +62,62 @@ export const registerController =async(req,res)=>{
 
 };
 
+//POST LOGIN
+export const loginController = async(req,res) => {
+    try {
+        const {email,password} = req.body
+        //validation
+        if(!email || !password){
+            return res.status(404).send({
+                success:false,
+                message:'Email and password are required'
+            })
+        }
+        //check user if  there is in db
+        const user = await userModels.findOne({email})
+        //provided email not present then send response
+        if(!user){
+            return res.status(404).send({
+                success:false,
+                message:'Email is not registered'
+            })
+        }
+        //otherwise we compare the password
+        const match = await comparePassword(password,user.password)
+        if(!match){
+            return res.status(200).send({
+                success:false,
+                message:'invalid password'
+            })
+        }
+        //token
+        const token = await JWT.sign({_id:user._id}, process.env.JWT_SECRET,{expiresIn:"7d",});
+        res.status(200).send({
+            success:true,
+            message:"Login successfully",
+            user:{
+                name:user.name,
+                email:user.email,
+                phone:user.phone,
+                address:user.address
+            },
+            token,
+        })
 
+    } catch(error){
+        console.log(error)
+        res.status(500).send({
+            success:false,
+            message:'error in login',
+            error
+        })
+    }
+}
+
+//test controller
+export const testController = (req,res)=>{
+    res.send("protected route")
+}
 
 
 // Controller File:
